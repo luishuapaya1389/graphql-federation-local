@@ -1,0 +1,33 @@
+# Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+.mvn/timing.properties
+
+# IDE
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+*.swp
+
+# Secrets — NUNCA versionar
+.env
+.env.*
+apollo-credentials.yaml
+**/secret*.yaml
+router/apollo-key.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Kubernetes generated
+kubeconfig

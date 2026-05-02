@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "vscjava.vscode-java-pack",
+    "vmware.vscode-spring-boot",
+    "GraphQL.vscode-graphql-syntax",
+    "GraphQL.vscode-graphql",
+    "ms-kubernetes-tools.vscode-kubernetes-tools",
+    "ms-azuretools.vscode-docker",
+    "tim-koehler.helm-intellisense",
+    "eamodio.gitlens",
+    "redhat.vscode-yaml",
+    "humao.rest-client"
+  ]
+}
