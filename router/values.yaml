@@ -34,9 +34,65 @@ router:
     # Exponer errores reales de subgraphs — solo para desarrollo/debug
     include_subgraph_errors:
       all: true
+    
+    # ─────────────────────────────────────────────────
+    # JWT Authentication — Multi-Provider
+    # Ref: https://www.apollographql.com/docs/graphos/routing/security/jwt
+    # ─────────────────────────────────────────────────
+    authorization:
+      # Rechaza requests sin JWT válido — enforce global
+      require_authentication: true
+
+    authentication:
+      router:
+        jwt:
+          # Header estándar OAuth 2.0 (RFC 6750)
+          header_name: Authorization
+          header_value_prefix: Bearer
+
+          # Comportamiento cuando el JWT es inválido
+          # "Error" → 401 al cliente (recomendado para producción)
+          on_error: Error
+
+          # ── JWKS de los 3 Authorization Servers ──
+          jwks:
+            # Auth Server 1
+            - url: "${env.JWKS_URL_CAS_AUTH_SERVER}"
+              issuers:
+                - "${env.ISSUER_CAS_AUTH_SERVER}"
+              # Refresca las claves cada 5 minutos
+              poll_interval: 3600s
+
+            # Auth Server 2
+            - url: "${env.JWKS_URL_B2C_PERSON_AUTH_SERVER}"
+              issuers:
+                - "${env.ISSUER_B2C_PERSON_AUTH_SERVER}"
+              poll_interval: 3600s
+
+            # Auth Server 3
+            - url: "${env.JWKS_URL_B2C_PYME_AUTH_SERVER}"
+              issuers:
+                - "${env.ISSUER_B2C_PYME_AUTH_SERVER}"
+              poll_interval: 3600s
+    
+    # ─────────────────────────────────────────────────
+    # Propagación de claims a subgraphs via headers
+    # Los subgraphs reciben el contexto del usuario
+    # sin necesidad de re-validar el JWT
+    # ─────────────────────────────────────────────────
+    headers:
+      all:
+        request:
+          # Propagar el JWT original a todos los subgraphs
+          - propagate:
+              named: Authorization
 
   args:
     - --hot-reload
+    - --log=debug
+
+# Agregar al values.yaml existente
+extraEnvVarsSecret: "jwt-config"
 
 service:
   type: LoadBalancer

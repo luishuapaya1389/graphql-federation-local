@@ -31,3 +31,5 @@ logs/
 
 # Kubernetes generated
 kubeconfig
+**/jwt-config-secret-values.yaml
+**/*-credentials.yaml
