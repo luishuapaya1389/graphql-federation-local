@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: subgraph-products
+  graphql:
+    graphiql:
+      enabled: true
+    path: /graphql
+
+server:
+  port: 8080
+  address: 0.0.0.0 # ← Escuchar en todas las interfaces
+
+# Exponer endpoints de actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always
+  server:
+    port: 8080
+
+logging:
+  level:
+    com.example: DEBUG
+    com.netflix.graphql.dgs: INFO

@@ -1,0 +1,59 @@
+# Apollo Router — Helm Values (Fase 1: configuración mínima)
+# Compatible con Apollo Router >= 1.40 / Helm chart apollo/router
+# Ref: https://www.apollographql.com/docs/router/containerization/kubernetes/
+
+replicaCount: 1
+
+# Credenciales de Apollo Studio via secret (nunca hardcoded)
+managedFederation:
+  # Nombre del Kubernetes Secret que contiene APOLLO_KEY
+  existingSecret: "apollo-credentials"
+  # Key dentro del secret que contiene el valor del API key
+  existingSecretKeyRefKey: "APOLLO_KEY"
+  # Graph ref como string directo — reemplaza con tu valor real
+  graphRef: "supergraph-poc-v1@current"
+
+router:
+  configuration:
+    # El Router escucha en 0.0.0.0:4000 dentro del pod
+    supergraph:
+      listen: 0.0.0.0:4000
+
+    # Health check para Kubernetes probes
+    health_check:
+      listen: 0.0.0.0:8088
+
+    # Sandbox habilitado para desarrollo local
+    #sandbox:
+    #  enabled: true
+
+    # Homepage deshabilitada (usamos sandbox)
+    #homepage:
+    #  enabled: false
+
+    # Exponer errores reales de subgraphs — solo para desarrollo/debug
+    include_subgraph_errors:
+      all: true
+
+  args:
+    - --hot-reload
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 4000
+
+# Probes de Kubernetes
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8088
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 8088
+  initialDelaySeconds: 5
+  periodSeconds: 5

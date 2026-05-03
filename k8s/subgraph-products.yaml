@@ -1,0 +1,67 @@
+# Deployment — subgraph-products
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: subgraph-products
+  namespace: apollo
+  labels:
+    app: subgraph-products
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: subgraph-products
+  template:
+    metadata:
+      labels:
+        app: subgraph-products
+    spec:
+      containers:
+        - name: subgraph-products
+          image: subgraph-products:1.0.0
+          # Usar imagen local importada — nunca intentar pull desde registry
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SERVER_PORT
+              value: "8080"
+            - name: SERVER_ADDRESS
+              value: "0.0.0.0"
+          readinessProbe:
+            #httpGet:
+            #  path: /actuator/health
+            #  port: 8080
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            #httpGet:
+            #  path: /actuator/health
+            #  port: 8080
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 45
+            periodSeconds: 15
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+# Service — subgraph-products
+apiVersion: v1
+kind: Service
+metadata:
+  name: subgraph-products
+  namespace: apollo
+spec:
+  selector:
+    app: subgraph-products
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

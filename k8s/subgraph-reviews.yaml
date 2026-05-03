@@ -1,0 +1,66 @@
+# Deployment — subgraph-reviews
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: subgraph-reviews
+  namespace: apollo
+  labels:
+    app: subgraph-reviews
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: subgraph-reviews
+  template:
+    metadata:
+      labels:
+        app: subgraph-reviews
+    spec:
+      containers:
+        - name: subgraph-reviews
+          image: subgraph-reviews:1.0.0
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SERVER_PORT
+              value: "8081"
+            - name: SERVER_ADDRESS
+              value: "0.0.0.0"
+          readinessProbe:
+            #httpGet:
+            #  path: /actuator/health
+            #  port: 8081
+            tcpSocket:
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            #httpGet:
+            #  path: /actuator/health
+            #  port: 8081
+            tcpSocket:
+              port: 8081
+            initialDelaySeconds: 45
+            periodSeconds: 15
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+# Service — subgraph-reviews
+apiVersion: v1
+kind: Service
+metadata:
+  name: subgraph-reviews
+  namespace: apollo
+spec:
+  selector:
+    app: subgraph-reviews
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081

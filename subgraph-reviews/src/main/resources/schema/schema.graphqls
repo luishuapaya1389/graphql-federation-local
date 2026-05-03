@@ -1,0 +1,24 @@
+extend schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.0"
+    import: ["@key"]
+  )
+
+# Stub de Product: Reviews conoce el @key pero no resuelve sus campos.
+# El Router sabrá que los campos del Product los provee el subgraph Products.
+type Product @key(fields: "id", resolvable: false) {
+  id: ID!
+}
+
+type Review @key(fields: "id") {
+  id: ID!
+  body: String!
+  rating: Int!
+  author: String!
+  product: Product!
+}
+
+type Query {
+  reviews: [Review!]!
+  reviewsByProduct(productId: ID!): [Review!]!
+}
